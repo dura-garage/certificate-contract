@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 contract CertificateContract {
     address public owner;
     uint256 public organizationCount = 0;
-    uint256 public programCount = 0;    
+    uint256 public programCount = 0;
 
     struct Organization {
         string name;
@@ -15,8 +15,8 @@ contract CertificateContract {
     struct Program {
         string name;
     }
-    
-    struct Student{
+
+    struct Student {
         string name;
     }
 
@@ -25,14 +25,12 @@ contract CertificateContract {
         address issuedBy;
     }
 
-
     mapping(address => Organization) public organizations;
     mapping(address => Student) public students;
 
     mapping(uint256 => Program) public programs;
     mapping(address => Certificate[]) public certificatesByStudent;
     mapping(address => Program[]) public programsByOrganization;
-    
 
     event OrganizationCreated(
         string name,
@@ -51,7 +49,10 @@ contract CertificateContract {
         _;
     }
     modifier onlyOrganizer() {
-        require(bytes(organizations[msg.sender].name).length != 0, "NOT_ORGANIZER");
+        require(
+            bytes(organizations[msg.sender].name).length != 0,
+            "NOT_ORGANIZER"
+        );
         _;
     }
 
@@ -59,22 +60,22 @@ contract CertificateContract {
         owner = msg.sender;
     }
 
-    function createOrganization(string memory _name, string memory _email)
-        public
-        onlyOwner
-    {
+    function createOrganization(
+        string memory _name,
+        string memory _email
+    ) public onlyOwner {
         organizationCount++;
         organizations[msg.sender] = Organization(_name, _email);
         emit OrganizationCreated(_name, _email, msg.sender);
     }
 
-    function createProgram(string memory _name) public onlyOrganizer{
+    function createProgram(string memory _name) public onlyOrganizer {
         programCount++;
         programs[programCount] = Program(_name);
         programsByOrganization[msg.sender].push(programs[programCount]);
     }
 
-    function registerStudent(string memory _name) public onlyOrganizer{
+    function registerStudent(string memory _name) public onlyOrganizer {
         students[msg.sender] = Student(_name);
     }
 
@@ -92,44 +93,40 @@ contract CertificateContract {
         emit CertificateIssued(_certificateHash, msg.sender, _issuedTo);
     }
 
-    
-    function verifyCertificate(string memory _certificateHash, address _issuedTo) public view returns(bool){
+    function verifyCertificate(
+        string memory _certificateHash,
+        address _issuedTo
+    ) public view returns (bool) {
         Certificate[] memory certificates = certificatesByStudent[_issuedTo];
-        for(uint i = 0; i < certificates.length; i++){
-            if(keccak256(abi.encodePacked(certificates[i].certificateHash)) == keccak256(abi.encodePacked(_certificateHash))){
+        for (uint i = 0; i < certificates.length; i++) {
+            if (
+                keccak256(abi.encodePacked(certificates[i].certificateHash)) ==
+                keccak256(abi.encodePacked(_certificateHash))
+            ) {
                 return true;
             }
         }
         return false;
     }
 
-    function getOrganization(address _organizationAddress)
-        public
-        view
-        returns (string memory, string memory)
-    {
+    function getOrganization(
+        address _organizationAddress
+    ) public view returns (string memory, string memory) {
         return (
             organizations[_organizationAddress].name,
             organizations[_organizationAddress].email
         );
     }
 
-    function getProgram(uint256 _programId)
-        public
-        view
-        returns (string memory)
-    {
+    function getProgram(
+        uint256 _programId
+    ) public view returns (string memory) {
         return programs[_programId].name;
     }
 
-    function getStudent(address _studentAddress)
-        public
-        view
-        returns (string memory)
-    {
+    function getStudent(
+        address _studentAddress
+    ) public view returns (string memory) {
         return students[_studentAddress].name;
     }
-
-    
-
 }
