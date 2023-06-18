@@ -47,6 +47,8 @@ async function saveFrontendFiles(certi: DeployResult) {
         contractsDir + "/Certificate.json",
         CertificateArtifact
     )
+
+    
 }
 export default deployFunction;
 module.exports.tags = ["all", "local"]

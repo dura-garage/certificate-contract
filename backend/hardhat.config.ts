@@ -1,9 +1,10 @@
-import { HardhatUserConfig } from "hardhat/config";
+
+import { HardhatUserConfig, task } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import "@nomiclabs/hardhat-ethers";
-import "@typechain/hardhat"
-import "hardhat-deploy"
-import deployFunction from "./deploy/deploy";
+import "@typechain/hardhat";
+import "hardhat-deploy";
+import { docgen } from "solidity-docgen";
 
 const config: HardhatUserConfig = {
   solidity: "0.8.18",
@@ -24,10 +25,18 @@ const config: HardhatUserConfig = {
     sources: "./contracts",
     tests: "./test",
   },
+
+  // docgen: {
+  //   path: "./docs",
+  //   clear: true,
+  //   runOnCompile: true,
+  // },
+
   // Add the deploy script to the hardhat.config.js file
   // Make sure to adjust the path if needed
   // and define any necessary network configurations
   // for deploying to specific networks
+  // ...
 };
 
 export default config;
