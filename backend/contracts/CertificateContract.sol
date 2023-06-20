@@ -16,7 +16,7 @@ contract CertificateContract {
     /// @notice The owner of the contract.
     address public owner;
 
-    /// @notice The number of organizations that have been created.
+    /// @notice The number of organizations that have been created.S
     uint256 public organizationCount = 0;
 
     /// @notice The number of programs that have been created.
@@ -90,6 +90,10 @@ contract CertificateContract {
 
     /// @notice A mapping from a program ID to an array of instructors.
     mapping(uint256 => Instructor[]) public instructorsByProgram;
+
+    /// @notice A mapping from a certificate hash to a boolean indicating whether the certificate has been issued.
+    mapping(bytes32 => bool) public certificateIssued;
+
 
 
     /// @notice An event that is emitted when an organization is created.
@@ -311,16 +315,20 @@ contract CertificateContract {
     /****************************  FOR CERTIFICATE ISSUNACE *******************************/
 
     /// @notice Issues a certificate to a student.
-    /// @param _certificateHash The hash of the certificate.
+    /// @param _certificateCID The IPFS CID of the certificate.
+    /// @param _certificateBytes The bytes of the certificate.
     /// @param _issuedTo The address of the student.
-    function issueCertificate(string memory _certificateHash, address _issuedTo)
+    function issueCertificate(string memory _certificateCID, string memory _certificateBytes, address _issuedTo)
         public
         onlyOrganizer
     {
         certificatesByStudent[_issuedTo].push(
-            Certificate(_certificateHash, msg.sender, _issuedTo)
+            Certificate(_certificateCID, msg.sender, _issuedTo)
         );
-        emit CertificateIssued(_certificateHash, msg.sender, _issuedTo);
+        // add the certificate to the certificateIssued
+        bytes32 certificateHash = keccak256(abi.encodePacked(_certificateBytes));
+        certificateIssued[certificateHash] = true;
+        emit CertificateIssued(_certificateBytes, msg.sender, _issuedTo);
     }
 
 
@@ -367,30 +375,15 @@ contract CertificateContract {
 
 
     /// @notice Verfiies the validity of a certificate.
-    /// @param _certificateHash The hash of the certificate.
-    /// @param _issuedBy The address of the organization that issued the certificate.
-    /// @param _issuedTo The address of the student that the certificate was issued to.
-    /// @return A boolean indicating whether the certificate is valid.
-    function verifyCertificate(
-        string memory _certificateHash,
-        address _issuedBy,
-        address _issuedTo
-    ) public view returns (bool) {
-        Certificate[] memory certificates = certificatesByStudent[_issuedTo];
-        for (uint256 i = 0; i < certificates.length; i++) {
-            if (
-                keccak256(abi.encodePacked(certificates[i].certificateHash)) ==
-                keccak256(abi.encodePacked(_certificateHash)) &&
-                certificates[i].issuedBy == _issuedBy &&
-                certificates[i].issuedTo == _issuedTo
-            ) {
-                return true;
-            }
-        }
-        return false;
+    /// @param _certificateBytes The bytes of the certificate.
+    /// @return A boolean indicating whether the certificate is valid or not.
+    function verifyCertificate(string memory _certificateBytes)
+        public
+        view
+        returns (bool)
+    {
+        bytes32 certificateHash = keccak256(abi.encodePacked(_certificateBytes));
+        return certificateIssued[certificateHash];
     }
-
-
-
 
 }

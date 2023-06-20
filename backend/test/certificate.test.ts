@@ -77,40 +77,11 @@ describe("Certificate Contract", function () {
     });
 
 
-
-
-    // TODO: resolve the MISSING_ARGUMENT error
-    // TODO: resolve the INVALID_ARGUMENT error
-
-    //add instructor to a program
-    describe("Add Instructor to a Program", function () {
-        it("Should add an instructor to a program", async function () {
-            await certificate.connect(organization).addInstructorToProgram("Instructor1", "instructor@first.org");
-            expect(await certificate.connect(organization).insructorsByProgram(1)).length.to.be.greaterThan(0);
-        }); 
-    });
-
-    //add student to a program
-    describe("Add Student to a Program", function () {
-        it("Should add a student to a program", async function () {
-            await certificate.connect(organization).addStudentToProgram("Student1", "student@first.org");
-            expect(await certificate.connect(organization).studentsByProgram(1)).length.to.be.greaterThan(0);   
-        });
-    });
-
-
-    //get students of a program
-    describe("Get Students of a Program", function () {
-        it("Should get the students of a program", async function () {
-            expect(await certificate.connect(organization).studentsByProgram(1)).length.to.be.greaterThan(0);    
-        });
-    });
-
     // issue the certificate
     describe("Issue Certificate", function () {
         it("Should issue a certificate", async function () {
-            await certificate.connect(organization).issueCertificate("hash1", student.address);
-            expect(await certificate.certificatesByStudent(student.address)).length.to.be.greaterThan(0);
+            await certificate.connect(organization).issueCertificate("hash1_cid","hash1_byte", student.address);
+            expect(await certificate.certificatesByStudent(student.address,0)).length.to.be.greaterThan(0);
         }
         );
 
@@ -128,12 +99,42 @@ describe("Certificate Contract", function () {
     // verify the certificate
     describe("Verify Certificate", function () {
         it("Should verify a certificate", async function () {
-            expect(await certificate.connect(student).verifyCertificate("hash1",organization.address, student.address)).to.equal(true);
+            expect(await certificate.connect(student).verifyCertificate("hash1_byte")).to.equal(true);
         });
     }
     );
 
 
+
+
+
+    // MISSING_ARGUMENTS: need extra argument, while reading from mapping, why?
+
+    //add instructor to a program
+    describe("Add Instructor to a Program", function () {
+        it("Should add an instructor to a program", async function () {
+            await certificate.connect(organization).addInstructorToProgram(instructor.address, 0);
+            expect(await certificate.connect(organization).instructorsByProgram(0,0)).length.to.be.greaterThan(0);
+        });
+    });
+
+    //add student to a program
+    describe("Add Student to a Program", function () {
+        it("Should add a student to a program", async function () {
+            await certificate.connect(organization).addStudentToProgram(student.address, 0);
+            expect(await certificate.connect(organization).studentsByProgram(0,0)).length.to.be.greaterThan(0);
+        });
+    });
+
+
+    //get students of a program
+    describe("Get Students of a Program", function () {
+        it("Should get the students of a program", async function () {
+            expect(await certificate.connect(organization).studentsByProgram(0,0)).length.to.be.greaterThan(0);
+        });
+    });
+
+    
 
 
 });
